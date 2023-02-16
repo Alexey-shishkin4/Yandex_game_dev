@@ -1,32 +1,49 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(HingeJoint2D))]
 public class Catcher : MonoBehaviour
 {
     private HingeJoint2D _joint;
-    private bool connected = true;
+    private Player player1;
+    private bool _canCatch = true;
+    [SerializeField] private bool _playerConnected;
 
     private void Start()
     {
         _joint = GetComponent<HingeJoint2D>();
+        player1 = GameObject.Find("Player").GetComponent<Player>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.TryGetComponent(out Player player) & !connected)
+        if (_canCatch)
         {
-            _joint.enabled = true;
-            connected = true;
+            if (other.gameObject.TryGetComponent(out Player player) & !player1.Connected)
+            {
+                _playerConnected = true;
+                _joint.enabled = true;
+                player1.Connected = true;
+            }
         }
-
     }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            _joint.enabled = false;
-            connected = false;
+            if (_playerConnected)
+            {
+                _joint.enabled = false;
+                player1.Connected = false;
+                _canCatch = false;
+                StartCoroutine(Waiting());
+            }
         }
+    }
+    private IEnumerator Waiting()
+    {
+        yield return new WaitForSeconds(1f);
+        _canCatch = true;
     }
 }
