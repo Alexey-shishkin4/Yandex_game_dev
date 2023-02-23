@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +20,7 @@ public class Slider : MonoBehaviour
     private ContactFilter2D _contactFilter;
     private RaycastHit2D[] _hitBuffer = new RaycastHit2D[16];
     private List<RaycastHit2D> _hitBufferList = new List<RaycastHit2D>(16);
+    private bool _grounded;
     private bool isJump = false;
 
     private void OnEnable()
@@ -42,7 +43,7 @@ public class Slider : MonoBehaviour
             alongSurface *= -1;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && _grounded)
         {
             isJump = true;
         }
@@ -63,6 +64,7 @@ public class Slider : MonoBehaviour
             _velocity.x = _targetVelocity.x;
         }
 
+        _grounded = false;
 
         Vector2 deltaPosition = _velocity * Time.deltaTime;
         Vector2 moveAlongGround = new Vector2(_groundNormal.y, -_groundNormal.x);
@@ -94,6 +96,7 @@ public class Slider : MonoBehaviour
                 Vector2 currentNormal = _hitBufferList[i].normal;
                 if (currentNormal.y > _minGroundNormalY)
                 {
+                    _grounded = true;
                     if (yMovement)
                     {
                         _groundNormal = currentNormal;
